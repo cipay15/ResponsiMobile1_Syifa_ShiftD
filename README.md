@@ -4,11 +4,16 @@
 
 ### register
 ![Lampiran registrasi](register.png)
+![Lampiran regis](regis2.png)
 ![Lampiran sukseslogin](sukses.png)
 
 ### login
 ![Lampiran login](login.png)
+![Lampiran login2](login2.png)
 ![Lampiran list](listrating.png)
+Jika gagal login maka akan menampilkan:
+![Lampiran gagallogin](gagal.png)
+
 
 ### Detail
 ![Lampiran detail](detail.png)

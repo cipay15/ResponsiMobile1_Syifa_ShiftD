@@ -31,3 +31,6 @@ Jika gagal login maka akan menampilkan:
 ### Edit 
 ![Lampiran edit](edit.png)
 ![Lampiran edit1](edit2.png)
+
+### PDF
+![PDF](H1D022096_Syifa Rahmadani_Responsi.pdf)

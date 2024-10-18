@@ -1,5 +1,6 @@
 # Responsi
-
+## Ketentuan 
+![Lampiran ketentuan](ketentuan.jpg)
 ## Screenshot
 
 ### register
@@ -33,4 +34,4 @@ Jika gagal login maka akan menampilkan:
 ![Lampiran edit1](edit2.png)
 
 ### PDF
-![Lampiran PDF](H1D022096_Syifa Rahmadani_Responsi.pdf)
+![Klik di sini](assets/H1D022096_Syifa%20Rahmadani_Responsi.pdf)

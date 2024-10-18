@@ -21,25 +21,23 @@ class RatingBloc {
     String apiUrl = ApiUrl.createRating;
 
     var body = {
-      "average_rating": rating.averageRating.toString(), // Pastikan ini string
-      "total_reviews": rating.totalRating.toString(), // Pastikan ini string
-      "best_seller_rank": rating.bestRating.toString(), // Pastikan ini string
+      "average_rating": rating.averageRating.toString(),
+      "total_reviews": rating.totalRating.toString(),
+      "best_seller_rank": rating.bestRating.toString(),
     };
 
-    print("Sending body: $body");
     var response = await Api().post(apiUrl, body);
-    print("Response: ${response.body}");
-
     var jsonObj = json.decode(response.body);
     return jsonObj['status'] == 'success';
   }
 
   static Future<bool> updateRating({required Rating rating}) async {
     String apiUrl = ApiUrl.updateRating(rating.id!);
+
     var body = {
       "average_rating": rating.averageRating.toString(),
       "total_reviews": rating.totalRating.toString(),
-      "best_seller_rank": rating.bestRating.toString()
+      "best_seller_rank": rating.bestRating.toString(),
     };
 
     var response = await Api().put(apiUrl, jsonEncode(body));
@@ -51,6 +49,6 @@ class RatingBloc {
     String apiUrl = ApiUrl.deleteRating(id);
     var response = await Api().delete(apiUrl);
     var jsonObj = json.decode(response.body);
-    return (jsonObj as Map<String, dynamic>)['data'];
+    return jsonObj['status'] == 'success';
   }
 }

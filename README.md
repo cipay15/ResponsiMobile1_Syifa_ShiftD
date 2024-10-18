@@ -27,3 +27,7 @@ Jika gagal login maka akan menampilkan:
 ### Delete Rating
 ![Lampiran sure](sure.png)
 ![Lampiran list1](list2.png)
+
+### Edit 
+![Lampiran edit](edit.png)
+![Lampiran edit1](edit2.png)

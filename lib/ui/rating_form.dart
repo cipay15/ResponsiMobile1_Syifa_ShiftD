@@ -19,20 +19,6 @@ class _RatingFormState extends State<RatingForm> {
   String judul = "Add Rating";
   String tombolSubmit = "Save";
 
-  // Menyimpan warna untuk label
-  final List<Color> rainbowColors = [
-    Colors.red,
-    Colors.orange,
-    Colors.yellow,
-    Colors.green,
-    Colors.blue,
-    Colors.indigo,
-    Colors.purple,
-  ];
-  late Color averageRatingColor;
-  late Color totalRatingColor;
-  late Color bestRatingColor;
-
   final _averageRatingTextboxController = TextEditingController();
   final _totalRatingTextboxController = TextEditingController();
   final _bestRatingTextboxController = TextEditingController();
@@ -41,13 +27,6 @@ class _RatingFormState extends State<RatingForm> {
   void initState() {
     super.initState();
     isUpdate();
-    _initializeColors();
-  }
-
-  void _initializeColors() {
-    averageRatingColor = rainbowColors[0];
-    totalRatingColor = rainbowColors[1];
-    bestRatingColor = rainbowColors[2];
   }
 
   @override
@@ -99,19 +78,18 @@ class _RatingFormState extends State<RatingForm> {
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(16),
               ),
+              margin: const EdgeInsets.all(16.0),
               child: Padding(
                 padding: const EdgeInsets.all(20.0),
                 child: Form(
                   key: _formKey,
                   child: Column(
-                    mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(
                         judul,
                         style: TextStyle(
-                          fontSize: 28,
+                          fontSize: 24,
                           fontWeight: FontWeight.bold,
-                          color: Colors.black,
                         ),
                       ),
                       const SizedBox(height: 20),
@@ -134,30 +112,20 @@ class _RatingFormState extends State<RatingForm> {
   }
 
   Widget _averageRatingTextField() {
-    return _buildTextField(
-        "Average Rating", _averageRatingTextboxController, averageRatingColor);
+    return _buildTextField("Average Rating", _averageRatingTextboxController);
   }
 
   Widget _totalRatingTextField() {
-    return _buildTextField(
-        "Total Reviews", _totalRatingTextboxController, totalRatingColor);
+    return _buildTextField("Total Reviews", _totalRatingTextboxController);
   }
 
   Widget _bestRatingTextField() {
-    return _buildTextField(
-        "Best Seller Rank", _bestRatingTextboxController, bestRatingColor);
+    return _buildTextField("Best Seller Rank", _bestRatingTextboxController);
   }
 
-  Widget _buildTextField(
-      String label, TextEditingController controller, Color labelColor) {
+  Widget _buildTextField(String label, TextEditingController controller) {
     return TextFormField(
-      decoration: InputDecoration(
-        labelText: label,
-        labelStyle: TextStyle(color: labelColor),
-        focusedBorder: UnderlineInputBorder(
-          borderSide: BorderSide(color: labelColor),
-        ),
-      ),
+      decoration: InputDecoration(labelText: label),
       keyboardType: TextInputType.number,
       controller: controller,
       validator: (value) {
@@ -173,19 +141,15 @@ class _RatingFormState extends State<RatingForm> {
     return Container(
       width: double.infinity,
       child: ElevatedButton(
-        style: ElevatedButton.styleFrom(
-          padding: const EdgeInsets.symmetric(vertical: 12),
-          backgroundColor: Colors.blueAccent,
-        ),
         child: Text(tombolSubmit),
         onPressed: () {
           var validate = _formKey.currentState!.validate();
           if (validate) {
             if (!_isLoading) {
               if (widget.rating != null) {
-                // Tambahkan logika update produk di sini jika diperlukan
+                ubah(); // Panggil fungsi ubah() saat update
               } else {
-                simpan();
+                simpan(); // Panggil fungsi simpan() saat create
               }
             }
           }
@@ -216,6 +180,34 @@ class _RatingFormState extends State<RatingForm> {
         context: context,
         builder: (BuildContext context) => const WarningDialog(
           description: "Simpan gagal, silahkan coba lagi",
+        ),
+      );
+    }).whenComplete(() {
+      setState(() {
+        _isLoading = false;
+      });
+    });
+  }
+
+  void ubah() {
+    setState(() {
+      _isLoading = true;
+    });
+    Rating updateRating = Rating(id: widget.rating!.id!);
+    updateRating.averageRating =
+        int.parse(_averageRatingTextboxController.text);
+    updateRating.totalRating = int.parse(_totalRatingTextboxController.text);
+    updateRating.bestRating = int.parse(_bestRatingTextboxController.text);
+
+    RatingBloc.updateRating(rating: updateRating).then((value) {
+      Navigator.of(context).push(MaterialPageRoute(
+        builder: (BuildContext context) => const RatingPage(),
+      ));
+    }, onError: (error) {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) => const WarningDialog(
+          description: "Permintaan ubah data gagal, silahkan coba lagi",
         ),
       );
     }).whenComplete(() {

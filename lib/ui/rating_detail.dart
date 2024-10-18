@@ -19,34 +19,74 @@ class _RatingDetailState extends State<RatingDetail> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Detail Rating'),
-      ),
-      body: Center(
-        child: Column(
-          children: [
-            Text(
-              "Average  : ${widget.rating!.averageRating}",
-              style: const TextStyle(fontSize: 20.0),
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              Colors.red,
+              Colors.orange,
+              Colors.yellow,
+              Colors.green,
+              Colors.blue,
+              Colors.indigo,
+              Colors.purple,
+            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+        ),
+        child: Center(
+          child: SingleChildScrollView(
+            child: Card(
+              elevation: 8,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+              margin: const EdgeInsets.all(16.0),
+              child: Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      'Detail Rating',
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black,
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    _buildDetailText(
+                        "Average Rating: ${widget.rating!.averageRating}",
+                        20.0),
+                    _buildDetailText(
+                        "Total Reviews: ${widget.rating!.totalRating}", 18.0),
+                    _buildDetailText(
+                        "Best Seller Rank: ${widget.rating!.bestRating}", 18.0),
+                    const SizedBox(height: 20),
+                    _tombolHapusEdit(),
+                  ],
+                ),
+              ),
             ),
-            Text(
-              "Total : ${widget.rating!.totalRating}",
-              style: const TextStyle(fontSize: 18.0),
-            ),
-            Text(
-              "Best :${widget.rating!.bestRating}",
-              style: const TextStyle(fontSize: 18.0),
-            ),
-            _tombolHapusEdit()
-          ],
+          ),
         ),
       ),
     );
   }
 
+  Widget _buildDetailText(String text, double fontSize) {
+    return Text(
+      text,
+      style: TextStyle(fontSize: fontSize),
+      textAlign: TextAlign.center,
+    );
+  }
+
   Widget _tombolHapusEdit() {
     return Row(
-      mainAxisSize: MainAxisSize.min,
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
         // Tombol Edit
         OutlinedButton(
@@ -73,30 +113,31 @@ class _RatingDetailState extends State<RatingDetail> {
 
   void confirmHapus() {
     AlertDialog alertDialog = AlertDialog(
-      content: const Text("Are You Sure?"),
+      content: const Text("Are You Sure To Delete This Rating?"),
       actions: [
-        //tombol hapus
+        // Tombol hapus
         OutlinedButton(
           child: const Text("Yes"),
           onPressed: () {
-            RatingBloc.deleteRating(id: widget.rating!.id!).then(
-                (value) => {
-                      Navigator.of(context).push(MaterialPageRoute(
-                          builder: (context) => const RatingPage()))
-                    }, onError: (error) {
+            RatingBloc.deleteRating(id: widget.rating!.id!).then((value) {
+              Navigator.of(context).push(MaterialPageRoute(
+                builder: (context) => const RatingPage(),
+              ));
+            }, onError: (error) {
               showDialog(
-                  context: context,
-                  builder: (BuildContext context) => const WarningDialog(
-                        description: "Hapus gagal, silahkan coba lagi",
-                      ));
+                context: context,
+                builder: (BuildContext context) => const WarningDialog(
+                  description: "Hapus gagal, silahkan coba lagi",
+                ),
+              );
             });
           },
         ),
-        //tombol batal
+        // Tombol batal
         OutlinedButton(
           child: const Text("No"),
           onPressed: () => Navigator.pop(context),
-        )
+        ),
       ],
     );
 

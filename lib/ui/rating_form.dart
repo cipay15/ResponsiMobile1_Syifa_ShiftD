@@ -18,6 +18,21 @@ class _RatingFormState extends State<RatingForm> {
   bool _isLoading = false;
   String judul = "Add Rating";
   String tombolSubmit = "Save";
+
+  // Menyimpan warna untuk label
+  final List<Color> rainbowColors = [
+    Colors.red,
+    Colors.orange,
+    Colors.yellow,
+    Colors.green,
+    Colors.blue,
+    Colors.indigo,
+    Colors.purple,
+  ];
+  late Color averageRatingColor;
+  late Color totalRatingColor;
+  late Color bestRatingColor;
+
   final _averageRatingTextboxController = TextEditingController();
   final _totalRatingTextboxController = TextEditingController();
   final _bestRatingTextboxController = TextEditingController();
@@ -26,6 +41,13 @@ class _RatingFormState extends State<RatingForm> {
   void initState() {
     super.initState();
     isUpdate();
+    _initializeColors();
+  }
+
+  void _initializeColors() {
+    averageRatingColor = rainbowColors[0];
+    totalRatingColor = rainbowColors[1];
+    bestRatingColor = rainbowColors[2];
   }
 
   @override
@@ -48,28 +70,62 @@ class _RatingFormState extends State<RatingForm> {
         _bestRatingTextboxController.text =
             widget.rating!.bestRating.toString();
       });
-    } else {
-      judul = "ADD RATING";
-      tombolSubmit = "Save";
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(judul)),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              children: [
-                _averageRatingTextField(),
-                _totalRatingTextField(),
-                _bestRatingTextField(),
-                _buttonSubmit(),
-              ],
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              Colors.red,
+              Colors.orange,
+              Colors.yellow,
+              Colors.green,
+              Colors.blue,
+              Colors.indigo,
+              Colors.purple,
+            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+        ),
+        child: Center(
+          child: SingleChildScrollView(
+            child: Card(
+              elevation: 8,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        judul,
+                        style: TextStyle(
+                          fontSize: 28,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      _averageRatingTextField(),
+                      const SizedBox(height: 16),
+                      _totalRatingTextField(),
+                      const SizedBox(height: 16),
+                      _bestRatingTextField(),
+                      const SizedBox(height: 20),
+                      _buttonSubmit(),
+                    ],
+                  ),
+                ),
+              ),
             ),
           ),
         ),
@@ -78,41 +134,35 @@ class _RatingFormState extends State<RatingForm> {
   }
 
   Widget _averageRatingTextField() {
-    return TextFormField(
-      decoration: const InputDecoration(labelText: "Average Rating"),
-      keyboardType: TextInputType.number,
-      controller: _averageRatingTextboxController,
-      validator: (value) {
-        if (value!.isEmpty) {
-          return "Average Rating harus diisi";
-        }
-        return null;
-      },
-    );
+    return _buildTextField(
+        "Average Rating", _averageRatingTextboxController, averageRatingColor);
   }
 
   Widget _totalRatingTextField() {
-    return TextFormField(
-      decoration: const InputDecoration(labelText: "Total Reviews"),
-      keyboardType: TextInputType.number,
-      controller: _totalRatingTextboxController,
-      validator: (value) {
-        if (value!.isEmpty) {
-          return "Total Reviews harus diisi";
-        }
-        return null;
-      },
-    );
+    return _buildTextField(
+        "Total Reviews", _totalRatingTextboxController, totalRatingColor);
   }
 
   Widget _bestRatingTextField() {
+    return _buildTextField(
+        "Best Seller Rank", _bestRatingTextboxController, bestRatingColor);
+  }
+
+  Widget _buildTextField(
+      String label, TextEditingController controller, Color labelColor) {
     return TextFormField(
-      decoration: const InputDecoration(labelText: "Best Seller Rank"),
+      decoration: InputDecoration(
+        labelText: label,
+        labelStyle: TextStyle(color: labelColor),
+        focusedBorder: UnderlineInputBorder(
+          borderSide: BorderSide(color: labelColor),
+        ),
+      ),
       keyboardType: TextInputType.number,
-      controller: _bestRatingTextboxController,
+      controller: controller,
       validator: (value) {
         if (value!.isEmpty) {
-          return "Best Seller Rank Harus diisi";
+          return "$label harus diisi";
         }
         return null;
       },
@@ -120,21 +170,27 @@ class _RatingFormState extends State<RatingForm> {
   }
 
   Widget _buttonSubmit() {
-    return OutlinedButton(
-      child: Text(tombolSubmit),
-      onPressed: () {
-        var validate = _formKey.currentState!.validate();
-        if (validate) {
-          if (!_isLoading) {
-            if (widget.rating != null) {
-              // Kondisi update produk
-              // Tambahkan logika update produk di sini
-            } else {
-              simpan();
+    return Container(
+      width: double.infinity,
+      child: ElevatedButton(
+        style: ElevatedButton.styleFrom(
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          backgroundColor: Colors.blueAccent,
+        ),
+        child: Text(tombolSubmit),
+        onPressed: () {
+          var validate = _formKey.currentState!.validate();
+          if (validate) {
+            if (!_isLoading) {
+              if (widget.rating != null) {
+                // Tambahkan logika update produk di sini jika diperlukan
+              } else {
+                simpan();
+              }
             }
           }
-        }
-      },
+        },
+      ),
     );
   }
 
@@ -142,6 +198,7 @@ class _RatingFormState extends State<RatingForm> {
     setState(() {
       _isLoading = true;
     });
+
     Rating createRating = Rating(id: null);
     createRating.averageRating =
         int.tryParse(_averageRatingTextboxController.text) ?? 0;

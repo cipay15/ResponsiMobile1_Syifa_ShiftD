@@ -17,19 +17,63 @@ class _RatingPageState extends State<RatingPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('List Rating'),
-        actions: [
-          Padding(
-              padding: const EdgeInsets.only(right: 20.0),
-              child: GestureDetector(
-                child: const Icon(Icons.add, size: 26.0),
-                onTap: () async {
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => RatingForm()));
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              Colors.red,
+              Colors.orange,
+              Colors.yellow,
+              Colors.green,
+              Colors.blue,
+              Colors.indigo,
+              Colors.purple,
+            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+        ),
+        child: Column(
+          children: [
+            AppBar(
+              title: const Text('List Rating'),
+              actions: [
+                Padding(
+                  padding: const EdgeInsets.only(right: 20.0),
+                  child: GestureDetector(
+                    child: const Icon(Icons.add, size: 26.0),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => RatingForm()),
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
+            Expanded(
+              child: FutureBuilder<List<Rating>>(
+                future: RatingBloc.getRatings(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+                  if (snapshot.hasError) {
+                    return const Center(child: Text('Error loading ratings'));
+                  }
+                  final ratings = snapshot.data ?? [];
+                  return ListView.builder(
+                    itemCount: ratings.length,
+                    itemBuilder: (context, index) {
+                      return ItemRating(rating: ratings[index]);
+                    },
+                  );
                 },
-              ))
-        ],
+              ),
+            ),
+          ],
+        ),
       ),
       drawer: Drawer(
         child: ListView(
@@ -38,47 +82,17 @@ class _RatingPageState extends State<RatingPage> {
               title: const Text('Logout'),
               trailing: const Icon(Icons.logout),
               onTap: () async {
-                await LogoutBloc.logout().then((value) => {
-                      Navigator.of(context).pushAndRemoveUntil(
-                          MaterialPageRoute(builder: (context) => LoginPage()),
-                          (route) => false)
-                    });
+                await LogoutBloc.logout();
+                Navigator.of(context).pushAndRemoveUntil(
+                  MaterialPageRoute(builder: (context) => LoginPage()),
+                  (route) => false,
+                );
               },
-            )
+            ),
           ],
         ),
       ),
-      body: FutureBuilder<List>(
-        future: RatingBloc.getRatings(),
-        builder: (context, snapshot) {
-          if (snapshot.hasError) print(snapshot.error);
-          return snapshot.hasData
-              ? ListRating(
-                  list: snapshot.data,
-                )
-              : const Center(
-                  child: CircularProgressIndicator(),
-                );
-        },
-      ),
     );
-  }
-}
-
-class ListRating extends StatelessWidget {
-  final List? list;
-
-  const ListRating({Key? key, this.list}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return ListView.builder(
-        itemCount: list == null ? 0 : list!.length,
-        itemBuilder: (context, i) {
-          return ItemRating(
-            rating: list![i],
-          );
-        });
   }
 }
 
@@ -92,17 +106,18 @@ class ItemRating extends StatelessWidget {
     return GestureDetector(
       onTap: () {
         Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (context) => RatingDetail(
-                      rating: rating,
-                    )));
+          context,
+          MaterialPageRoute(
+            builder: (context) => RatingDetail(rating: rating),
+          ),
+        );
       },
       child: Card(
+        margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
         child: ListTile(
-          title: Text(rating.averageRating.toString()),
-          subtitle: Text(rating.totalRating.toString()),
-          trailing: Text(rating.bestRating.toString()),
+          title: Text('Average Rating: ${rating.averageRating}'),
+          subtitle: Text('Total Reviews: ${rating.totalRating}'),
+          trailing: Text('Best Rating: ${rating.bestRating}'),
         ),
       ),
     );
